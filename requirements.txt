@@ -3,3 +3,5 @@ djangorestframework
 phonenumbers
 gunicorn
 uvicorn
+whitenoise
+brotli
