@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from api.models import Tier, User, RequestType, Request, RequestImage
 from api.serializers import TierSerializer, UserSerializer, RequestTypeSerializer, RequestSerializer, RequestImageSerializer
 from api.utils import is_valid_email, is_valid_phone, format_phone, generate_unique_hash
+import string
 
 # Create your views here.
 class Login(APIView):
@@ -46,11 +47,25 @@ class CreateAccount(APIView):
         if username == "" or password == "" or email == "" or phone == "":
             return Response({"error_message": "Please Fill All Fields"}, status=status.HTTP_400_BAD_REQUEST)
         
+        for char in username:
+            if char not in string.ascii_letters + string.digits + "_-":
+                return Response({"error_message": "Invalid Username"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        for char in password:
+            if char == " ":
+                return Response({"error_message": "Invalid Password"}, status=status.HTTP_400_BAD_REQUEST)
+        
         if not is_valid_email(email):
             return Response({"error_message": "Invalid Email"}, status=status.HTTP_400_BAD_REQUEST)
         
         if not is_valid_phone(phone):
             return Response({"error_message": "Invalid Phone Number"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(username=username)
+            return Response({"error_message": "Username Taken"}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            pass
         
         hash = generate_unique_hash(User.objects.values_list("hash", flat=True))
 
