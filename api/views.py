@@ -66,7 +66,7 @@ class RequestData(APIView):
     """
 
     def get(self, request, format=None):
-        hash = request.data.get("hash", "").strip()
+        hash = request.query_params.get("hash", "").strip()
 
         if hash == "":
             return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
