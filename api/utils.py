@@ -8,7 +8,10 @@ def is_valid_email(email):
     return not not EMAIL_REGEX.match(email)
 
 def is_valid_phone(phone):
-    return phonenumbers.is_valid_number(phonenumbers.parse(phone, "CA"))
+    try:
+        return phonenumbers.is_valid_number(phonenumbers.parse(phone, "CA"))
+    except:
+        return False
 
 def format_phone(phone):
     return phonenumbers.format_number(phonenumbers.parse(phone, "CA"), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
