@@ -99,7 +99,7 @@ class RequestData(APIView):
         
         requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').all()
 
-        serializer = RequestSerializer(request, many=True)
+        serializer = RequestSerializer(requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -129,6 +129,27 @@ class RequestData(APIView):
         request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(pk=request.pk)
 
         serializer = RequestSerializer(request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class HomeData(APIView):
+    """
+    Get Data Needed For Home Page.
+    """
+
+    def get(self, request, format=None):
+        hash = request.query_params.get("hash", "").strip()
+
+        if hash == "":
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(hash=hash)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').all()
+
+        serializer = RequestSerializer(requests.order_by("-created")[:5], many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(['POST'])
