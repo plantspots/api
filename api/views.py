@@ -51,9 +51,15 @@ class CreateAccount(APIView):
             if char not in string.ascii_letters + string.digits + "_-":
                 return Response({"error_message": "Invalid Username"}, status=status.HTTP_400_BAD_REQUEST)
         
+        if len(username) < 4:
+            return Response({"error_message": "Username Too Short"}, status=status.HTTP_400_BAD_REQUEST)
+        
         for char in password:
             if char == " ":
                 return Response({"error_message": "Invalid Password"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(password) < 4:
+            return Response({"error_message": "Password Too Short"}, status=status.HTTP_400_BAD_REQUEST)
         
         if not is_valid_email(email):
             return Response({"error_message": "Invalid Email"}, status=status.HTTP_400_BAD_REQUEST)
