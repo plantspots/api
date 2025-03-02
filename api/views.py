@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import status
@@ -153,6 +154,24 @@ class HomeData(APIView):
 
         serializer = RequestSerializer(requests.order_by("-created")[:5], many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class OpenAIData(APIView):
+    """
+    Get OpenAI key.
+    """
+
+    def get(self, request, format=None):
+        hash = request.query_params.get("hash", "").strip()
+
+        if hash == "":
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(hash=hash)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"key": os.environ.get("OPEN_AI_SECRET_KEY")}, status=status.HTTP_200_OK)
 
 # @api_view(['POST'])
 # def login(request):
