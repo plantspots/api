@@ -1,6 +1,8 @@
 import os
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password, check_password
+from django.db.models import Q
+from django.db.models.functions import Now
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -208,6 +210,36 @@ class UpdateRequestData(APIView):
         serializer = RequestSerializer(request)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class CloseRequestData(APIView):
+    """
+    Close Requests.
+    """
+
+    def post(self, request, format=None):
+        hash = request.data.get("hash", "").strip()
+        id = request.data.get("id", "")
+
+        if hash == "" or id == "":
+            return Response({"error_message": "Invalid Request"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(hash=hash)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(id=id)
+        except Request.DoesNotExist:
+            return Response({"error_message": "Invalid Request"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if user.username != request.user.username:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.closed = Now()
+        request.save()
+
+        return Response({"success": "success"}, status=status.HTTP_200_OK)
+
 class HomeData(APIView):
     """
     Get Data Needed For Home Page.
@@ -224,9 +256,9 @@ class HomeData(APIView):
         except User.DoesNotExist:
             return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
         
-        requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').all()
+        requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').filter(~Q(closed=None))
 
-        serializer = RequestSerializer(requests.order_by("-created")[:5], many=True)
+        serializer = RequestSerializer(requests.order_by("-closed")[:5], many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class OpenAIData(APIView):
