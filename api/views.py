@@ -68,7 +68,7 @@ class CreateAccount(APIView):
             return Response({"error_message": "Invalid Phone Number"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username__iexact=username)
             return Response({"error_message": "Username Taken"}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             pass
