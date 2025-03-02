@@ -253,6 +253,7 @@ class CloseRequestData(APIView):
             user.tier = Tier.objects.get(rank=4)
         
         user.save()
+        user = User.objects.prefetch_related("tier").get(pk=user.pk)
 
         serializer = UserSerializer(user)
         return Response(serializer, status=status.HTTP_200_OK)
