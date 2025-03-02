@@ -58,7 +58,7 @@ class Request(models.Model):
 
 class RequestImage(models.Model):
     added = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    request = models.ForeignKey(Request, blank=False, null=False, related_name="images")
+    request = models.ForeignKey(Request, on_delete=models.DO_NOTHING, blank=False, null=False, related_name="images")
     image = models.TextField(blank=False, null=False)
 
     def __str__(self):
