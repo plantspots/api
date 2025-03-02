@@ -99,7 +99,7 @@ class RequestData(APIView):
         except User.DoesNotExist:
             return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
         
-        requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').all()
+        requests = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').filter(closed=None)
 
         serializer = RequestSerializer(requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
