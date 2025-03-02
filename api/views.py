@@ -47,6 +47,7 @@ class CreateAccount(APIView):
         if username == "" or password == "" or email == "" or phone == "":
             return Response({"error_message": "Please Fill All Fields"}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Validate username
         for char in username:
             if char not in string.ascii_letters + string.digits + "_-":
                 return Response({"error_message": "Invalid Username"}, status=status.HTTP_400_BAD_REQUEST)
@@ -54,6 +55,7 @@ class CreateAccount(APIView):
         if len(username) < 4:
             return Response({"error_message": "Username Too Short"}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Validate password
         for char in password:
             if char == " ":
                 return Response({"error_message": "Invalid Password"}, status=status.HTTP_400_BAD_REQUEST)
