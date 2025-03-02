@@ -134,6 +134,52 @@ class RequestData(APIView):
         serializer = RequestSerializer(request)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class UpdateRequestData(APIView):
+    """
+    Update Requests.
+    """
+
+    def post(self, request, format=None):
+        hash = request.data.get("hash", "").strip()
+        id = request.data.get("id", "")
+        title = request.data.get("title", "").strip()
+        description = request.data.get("description", "").strip()
+        type = request.data.get("type", "") # 0 - Land, 1 - Plants
+        email_contact = request.data.get("email_contact", "")
+        phone_contact = request.data.get("phone_contact", "")
+        images = request.data.get("images", "").strip() # URL-safe BASE64 images separated by * characters
+
+        if hash == "" or id == "" or title == "" or description == "" or type == "" or email_contact == "" or phone_contact == "":
+            return Response({"error_message": "Please Fill All Fields"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(hash=hash)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            request = Request.objects.get(id=id)
+        except Request.DoesNotExist:
+            return Response({"error_message": "Invalid Request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user = user
+        request.title = title
+        request.description = description
+        request.type = RequestType.objects.get(identification_number=type)
+        request.email_contact = email_contact
+        request.phone_contact = phone_contact
+        request.save()
+        
+        image_list = images.split("*")
+
+        for image in image_list:
+            RequestImage.objects.create(request=request, image=image)
+        
+        request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(pk=request.pk)
+
+        serializer = RequestSerializer(request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class HomeData(APIView):
     """
     Get Data Needed For Home Page.
