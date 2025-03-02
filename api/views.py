@@ -254,7 +254,8 @@ class CloseRequestData(APIView):
         
         user.save()
 
-        return Response({"success": "success"}, status=status.HTTP_200_OK)
+        serializer = UserSerializer(user)
+        return Response(serializer, status=status.HTTP_200_OK)
 
 class HomeData(APIView):
     """
