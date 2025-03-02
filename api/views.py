@@ -129,7 +129,8 @@ class RequestData(APIView):
         image_list = images.split("*")
 
         for image in image_list:
-            RequestImage.objects.create(request=request, image=image)
+            if image != "":
+                RequestImage.objects.create(request=request, image=image)
         
         request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(pk=request.pk)
 
