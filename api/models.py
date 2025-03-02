@@ -17,8 +17,8 @@ class User(models.Model):
     last_updated = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     username = models.CharField(max_length=256, blank=False, null=False, unique=True)
     password = models.CharField(max_length=256, blank=False, null=False)
-    email = models.CharField(max_length=256, blank=False, null=False, unique=True)
-    phone = models.CharField(max_length=256, blank=False, null=False, unique=True)
+    email = models.CharField(max_length=256, blank=False, null=False)
+    phone = models.CharField(max_length=256, blank=False, null=False)
     hash = models.CharField(max_length=256, blank=False, null=False, unique=True)
     tier = models.ForeignKey(Tier, on_delete=models.CASCADE, blank=False, null=False)
 
