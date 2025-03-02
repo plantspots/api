@@ -200,6 +200,8 @@ class UpdateRequestData(APIView):
         request.phone_contact = phone_contact
         request.save()
 
+        RequestImage.objects.filter(request=request).delete()
+
         image_list = images.split("*")
 
         for image in image_list:
