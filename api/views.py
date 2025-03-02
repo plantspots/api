@@ -111,14 +111,6 @@ class RequestData(APIView):
         phone_contact = request.data.get("phone_contact", "")
         images = request.data.get("images", "").strip() # URL-safe BASE64 images separated by * characters
 
-        print(hash)
-        print(title)
-        print(description)
-        print(type)
-        print(email_contact)
-        print(phone_contact)
-        print(images)
-
         if hash == "" or title == "" or description == "" or type == "" or email_contact == "" or phone_contact == "":
             return Response({"error_message": "Please Fill All Fields"}, status=status.HTTP_400_BAD_REQUEST)
         

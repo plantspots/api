@@ -34,7 +34,7 @@ class RequestType(models.Model):
     identification_number = models.IntegerField(blank=False, null=False, unique=True)
 
     def __str__(self):
-        return f"{self.type}"
+        return f"{self.identification_number} | {self.type}"
     
     class Meta:
         ordering = ['type']
