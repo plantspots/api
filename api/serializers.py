@@ -23,7 +23,7 @@ class UserRequestSerializer(serializers.ModelSerializer):
 class RequestTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestType
-        fields = ['id', 'type', 'color']
+        fields = ['id', 'type', 'color', "identification_number"]
 
 class RequestImageSerializer(serializers.ModelSerializer):
     class Meta:
