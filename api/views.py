@@ -106,9 +106,9 @@ class RequestData(APIView):
         hash = request.data.get("hash", "").strip()
         title = request.data.get("title", "").strip()
         description = request.data.get("description", "").strip()
-        type = request.data.get("type", "").strip() # 0 - Land, 1 - Plants
-        email_contact = request.data.get("email_contact", "").strip()
-        phone_contact = request.data.get("phone_contact", "").strip()
+        type = request.data.get("type", "") # 0 - Land, 1 - Plants
+        email_contact = request.data.get("email_contact", "")
+        phone_contact = request.data.get("phone_contact", "")
         images = request.data.get("images", "").strip() # URL-safe BASE64 images separated by * characters
 
         if hash == "" or title == "" or description == "" or type == "" or email_contact == "" or phone_contact == "":
@@ -119,7 +119,7 @@ class RequestData(APIView):
         except User.DoesNotExist:
             return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request = Request.objects.create(user=user, title=title, description=description, type=RequestType.objects.get(identification_number=int(type)), email_contact=(email_contact == "true"), phone_contact=(phone_contact == "true"))
+        request = Request.objects.create(user=user, title=title, description=description, type=RequestType.objects.get(identification_number=type), email_contact=email_contact, phone_contact=phone_contact)
 
         image_list = images.split("*")
 
