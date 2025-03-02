@@ -242,6 +242,17 @@ class CloseRequestData(APIView):
         request.closed = Now()
         request.save()
 
+        closed_requests = Request.objects.filter(~Q(closed=None), user=user).count()
+
+        if 10 > closed_requests > 5:
+            user.tier = Tier.objects.get(rank=2)
+        elif 15 > closed_requests > 10:
+            user.tier = Tier.objects.get(rank=3)
+        elif 20 > closed_requests:
+            user.tier = Tier.objects.get(rank=4)
+        
+        user.save()
+
         return Response({"success": "success"}, status=status.HTTP_200_OK)
 
 class HomeData(APIView):
