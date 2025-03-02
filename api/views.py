@@ -134,6 +134,31 @@ class RequestData(APIView):
         serializer = RequestSerializer(request)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class GetRequestData(APIView):
+    """
+    Get Requests.
+    """
+
+    def get(self, request, format=None):
+        hash = request.query_params.get("hash", "").strip()
+        id = request.query_params.get("id", "").strip()
+
+        if hash == "" or id == "":
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(hash=hash)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(id=id)
+        except User.DoesNotExist:
+            return Response({"error_message": "Invalid Request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = RequestSerializer(request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UpdateRequestData(APIView):
     """
     Update Requests.
@@ -158,9 +183,12 @@ class UpdateRequestData(APIView):
             return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            request = Request.objects.get(id=id)
+            request = Request.objects.prefetch_related('user').prefetch_related('type').prefetch_related('images').get(id=id)
         except Request.DoesNotExist:
             return Response({"error_message": "Invalid Request"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if user.username != request.user.username:
+            return Response({"error_message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
 
         request.user = user
         request.title = title
@@ -169,7 +197,7 @@ class UpdateRequestData(APIView):
         request.email_contact = email_contact
         request.phone_contact = phone_contact
         request.save()
-        
+
         image_list = images.split("*")
 
         for image in image_list:
